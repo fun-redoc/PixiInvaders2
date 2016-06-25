@@ -128,7 +128,7 @@
 
   var Shoot = extend(Rect, function(parent) {
     Rect.call(this, parent, 0, 0, 5, 10, 0x00FF00);
-    this.velocity = {dx:0, dy:-0.5};
+    this.velocity = {dx:0, dy:-4};
     this.isActive = false;
     this.visible = false;
   });
@@ -240,6 +240,7 @@
                }.bind(this),[])
        .map(function(invader) {
               // mark hit invaders
+              console.log("hit me");
               invader.isHit = true;
               invader.visible = false;
             })
@@ -262,9 +263,9 @@
   //$(document).keydown(function(event){
   // vim like left=h right=l, space to shoot
   var keyActions = {
-    72: defender.moveLeft,
-    76: defender.moveRight,
-    32: defender.shoot
+    72: defender.moveLeft.bind(defender),
+    76: defender.moveRight.bind(defender),
+    32: defender.shoot.bind(defender)
   };
   document.onkeydown = function(event) {
     var event   = event || window.event;
