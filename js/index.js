@@ -209,9 +209,9 @@
   });
   Invaders.prototype.update = function(dt) {
     this.super.update.call(this,dt);
-    if(!this.destX || 
-      !(!(Math.sign(this.velocity.dx) < 0 ) || this.destX < this.invaders.position.x) ||
-      !(!(Math.sign(this.velocity.dx) > 0) || this.destX > this.invaders.position.x) ) { 
+    if(!this.destX || !(
+        !(Math.sign(this.velocity.dx) < 0 || this.destX < this.invaders.position.x) ||
+        !(Math.sign(this.velocity.dx) > 0 || this.destX > this.invaders.position.x))) { 
       this.destX = Math.random() * $(window).width();
       var newVelocity = this.velocity.dx * Math.sign(this.destX - this.invaders.position.x); 
       this.velocity.dx = newVelocity === 0 ? -this.velocity.dx : newVelocity;
