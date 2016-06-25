@@ -228,22 +228,31 @@
     shoots
       .filter(function(shoot) {
                 // find shoots which hit the fleet
-                return hitTestRectangle(shoot, this.invaders); 
+                if(shoot.visible) {
+                  return hitTestRectangle(shoot, this.invaders); 
+                } else {
+                  return false;
+                }
               }.bind(this))
-      .reduce(function(acc, shoot) {
+      .forEach(function(shoot) {
                 // find all invaders in fleet that are hit
-                 return acc.concat(this.invaders.children.filter( function(invader) {
+                 this.invaders.children.forEach( function(invader) {
                    // GoOnHere invader is in wrong coord system
                    var hit = !invader.visible || invader.isHit || hitTestRectangle(shoot, invader); 
-                   return hit;
-                 }))
-               }.bind(this),[])
-       .map(function(invader) {
-              // mark hit invaders
-              console.log("hit me");
-              invader.isHit = true;
-              invader.visible = false;
-            })
+                   if(hit) {
+                     invader.visible = false;
+                     shoot.isAcive = false;
+                     shoot.visible = false;
+                   }
+                 })
+               }.bind(this))
+//       .map(function(invader) {
+//              // mark hit invaders
+//              invader.isHit = true;
+//              invader.visible = false;
+//              // remove is slow
+//              //this.invaders.removeChild(invader);
+//            })
   }
 
   var stage = new GameMain();
