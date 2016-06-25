@@ -129,15 +129,13 @@
   var Shoot = extend(Rect, function(parent) {
     Rect.call(this, parent, 0, 0, 5, 10, 0x00FF00);
     this.velocity = {dx:0, dy:-4};
-    this.isActive = false;
     this.visible = false;
   });
   Shoot.prototype.update = function(dt) {
       this.super.update.call(this,dt);
-      if(!this.isActive) return;
+      if(!this.visible) return;
       this.position.y += this.velocity.dy;
       if(this.position.y + this.height < 0) {
-        this.isActive = false;
         this.visible = false;
       }
   };
@@ -165,7 +163,7 @@
   };
   Defender.prototype.shoot = function() {
       var freeShoot = this.shootPool.children.find( function(shoot) {
-        return !shoot.isActive;  
+        return !shoot.visible;  
       });
       if(!freeShoot) {
         console.log("no free shoot", this.shootPool.children.length);
@@ -176,13 +174,12 @@
       }
       freeShoot.position.x = this.position.x + this.width/2;
       freeShoot.position.y = this.position.y + this.height*0.1;
-      freeShoot.isActive = true;
       freeShoot.visible = true;
   };
   Defender.prototype.getShoots = function() {
     if(!this.shootPool) return [];
     return this.shootPool.children.reduce( function(acc, shoot) {
-      if(shoot.isActive) {
+      if(shoot.visible) {
         acc.push(shoot);
       } 
       return acc;
