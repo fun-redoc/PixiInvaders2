@@ -122,21 +122,20 @@
     this.cacheAsBitmap = true;
     this.position.x = x;
     this.position.y = y;
-    parent.addChild(this);
   });
   Rect.prototype.update = updateFunction;
 
   var Shoot = extend(Rect, function(parent) {
     Rect.call(this, parent, 0, 0, 5, 10, 0x00FF00);
     this.velocity = {dx:0, dy:-4};
-    this.visible = false;
+    this.renderable = false;
   });
   Shoot.prototype.update = function(dt) {
       this.super.update.call(this,dt);
-      if(!this.visible) return;
+      if(!this.renderable) return;
       this.position.y += this.velocity.dy;
       if(this.position.y + this.height < 0) {
-        this.visible = false;
+        this.renderable = false;
       }
   };
   
@@ -163,7 +162,7 @@
   };
   Defender.prototype.shoot = function() {
       var freeShoot = this.shootPool.children.find( function(shoot) {
-        return !shoot.visible;  
+        return !shoot.renderable;  
       });
       if(!freeShoot) {
         console.log("no free shoot", this.shootPool.children.length);
@@ -174,12 +173,12 @@
       }
       freeShoot.position.x = this.position.x + this.width/2;
       freeShoot.position.y = this.position.y + this.height*0.1;
-      freeShoot.visible = true;
+      freeShoot.renderable = true;
   };
   Defender.prototype.getShoots = function() {
     if(!this.shootPool) return [];
     return this.shootPool.children.reduce( function(acc, shoot) {
-      if(shoot.visible) {
+      if(shoot.renderable) {
         acc.push(shoot);
       } 
       return acc;
@@ -200,7 +199,7 @@
     this.invaders.position.y = y;
     for(var k=0; k<numy; k++) {
       for(var i=0; i<numx; i++) {
-        new Rect(this.invaders, i*(blockWidth+xGap),k*(blockHeight+yGap), blockWidth, blockHeight, 0x0000FF);
+        this.invaders.addChild(new Rect(this.invaders, i*(blockWidth+xGap),k*(blockHeight+yGap), blockWidth, blockHeight, 0x0000FF));
       }
     }
   });
@@ -212,7 +211,7 @@
       this.destX = Math.random() * $(window).width();
       var newVelocity = this.velocity.dx * Math.sign(this.destX - this.invaders.position.x); 
       this.velocity.dx = newVelocity === 0 ? -this.velocity.dx : newVelocity;
-//      this.invaders.position.y +=1;
+      this.invaders.position.y +=1;
     } else {
       this.invaders.position.x += this.velocity.dx;
     }
@@ -225,7 +224,7 @@
     shoots
       .filter(function(shoot) {
                 // find shoots which hit the fleet
-                if(shoot.visible) {
+                if(shoot.renderable) {
                   return hitTestRectangle(shoot, this.invaders); 
                 } else {
                   return false;
@@ -235,11 +234,10 @@
                 // find all invaders in fleet that are hit
                  this.invaders.children.forEach( function(invader) {
                    // GoOnHere invader is in wrong coord system
-                   var hit = !invader.visible || invader.isHit || hitTestRectangle(shoot, invader); 
+                   var hit = invader.renderable && hitTestRectangle(shoot, invader); 
                    if(hit) {
-                     invader.visible = false;
-                     shoot.isAcive = false;
-                     shoot.visible = false;
+                     invader.renderable = false;
+                     shoot.renderable = false;
                    }
                  })
                }.bind(this))
@@ -253,7 +251,7 @@
   }
 
   var stage = new GameMain();
-  var invaders = new Invaders(stage, 10, 470, 40, 20, 4,3);
+  var invaders = new Invaders(stage, 10, 10, 40, 20, 4,3);
   var defender = new Defender(stage, (windowWidth-40)/2,windowHeight-40,40,20,0xFF0000);
   stage.addDefender(defender);
   stage.addInvaders(invaders);
@@ -305,7 +303,7 @@
     renderer.render(stage);
     
     //test
-    if(cout++ % 100 === 0) defender.shoot();
+    if(cout++ % 10 === 0) defender.shoot();
   };
   requestAnimationFrame(animate);
 })(jQuery, this);
