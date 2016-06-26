@@ -27,11 +27,11 @@ define(["PIXI", "utils", "GameObject", "Rect", "Shoot"],
         return !shoot.renderable;  
       });
       if(!freeShoot) {
-        console.log("no free shoot", this.shootPool.children.length);
+        //console.log("no free shoot", this.shootPool.children.length);
         freeShoot = new Shoot(this.shootPool);
         this.shootPool.addChild(freeShoot);
       } else {
-        console.log("reusing free shoot");
+        //console.log("reusing free shoot");
       }
       freeShoot.position.x = this.position.x + this.width/2;
       freeShoot.position.y = this.position.y + this.height*0.1;

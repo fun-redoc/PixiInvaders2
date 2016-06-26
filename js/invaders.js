@@ -5,13 +5,17 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
  var Invaders = utils.extend(GameObject, function(parent, x,y, w,h,numx, numy) {
     GameObject.call(this, parent); 
     this.velocity = {dx:2, dy:0};
-    this.friction = {x:0.9, y:0};
+    //this.friction = {x:0.9, y:0};
     var blockWidth = w;
     var blockHeight = h;
     var yGap = 4;
     var xGap = 20;
     this.invaders = new GameObject();
     parent.addChild(this.invaders);
+   
+    this.shootPool = new GameObject(parent);
+    parent.addChild(this.shootPool);
+   
     this.invaders.position.x = x;
     this.invaders.position.y = y;
     for(var k=0; k<numy; k++) {
@@ -33,6 +37,7 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
     } else {
       this.invaders.position.x += this.velocity.dx;
     }
+    this.maybeShoot();
   };
   Invaders.prototype.checkHit = function(fnGetShoots) {
     if(!fnGetShoots) return;
@@ -62,6 +67,41 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
                  })
                }.bind(this))
   }
+  Invaders.prototype.maybeShoot = function() {
+    var randomRange =50;
+      if(typeof this.maybeShootCounter == "undefined") {
+        this.maybeShootCounter = Math.random()*randomRange;
+        return;
+      }
+      if(this.maybeShootCounter && this.maybeShootCounter > 0) {
+        this.maybeShootCounter--;
+        return;
+      } 
+      this.maybeShootCounter = Math.random()*randomRange;
+      var freeShoot = this.shootPool.children.find( function(shoot) {
+        return !shoot.renderable;  
+      });
+      if(!freeShoot) {
+        //console.log("no free shoot", this.shootPool.children.length);
+        freeShoot = new Shoot(this.shootPool, 0, 0, 8, 8, 0xDD4422);
+        freeShoot.velocity.dy = +4;
+        this.shootPool.addChild(freeShoot);
+      } else {
+        //console.log("reusing free shoot");
+      }
+      freeShoot.position.x = this.position.x + this.width/2;
+      freeShoot.position.y = this.position.y + this.height*0.1;
+      freeShoot.renderable = true;
+  };
+  Invaders.prototype.getShoots = function() {
+    if(!this.shootPool) return [];
+    return this.shootPool.children.reduce( function(acc, shoot) {
+      if(shoot.renderable) {
+        acc.push(shoot);
+      } 
+      return acc;
+    }, []);
+  };
 
   return Invaders;
 });

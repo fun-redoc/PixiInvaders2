@@ -81,7 +81,7 @@ var stage = new GameMain();
     renderer.render(stage);
     
     //test
-    if(cout++ % 10 === 0) defender.shoot();
+    if(cout++ % 100 === 0) defender.shoot();
   };
   requestAnimationFrame(animate);
 });

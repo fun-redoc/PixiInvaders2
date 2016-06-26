@@ -1,8 +1,14 @@
 define(["PIXI", "utils", "Rect"], function(PIXI,utils,Rect) {
   "use strict";
   
-   var Shoot = utils.extend(Rect, function(parent) {
-    Rect.call(this, parent, 0, 0, 5, 10, 0x00FF00);
+   var Shoot = utils.extend(Rect, function(parent, x,y, w,h,color) {
+    // defaults
+    if(!x) x = 0;
+    if(!y) y = 0;
+    if(!w) w = 5;
+    if(!h) h = 10;
+    if(!color) color = 0x00FF00;
+    Rect.call(this, parent, x, y, w, h, color);
     this.velocity = {dx:0, dy:-4};
     this.renderable = false;
   });
