@@ -1,98 +1,16 @@
-requirejs(["jquery","PIXI"], function ($,PIXI) {
+requirejs(["jquery","PIXI", "utils"], function ($,PIXI,utils) {
   "use strict";
     
-  console.log("start", $);
+  console.log("start", utils);
   var windowWidth = $(window).width();
   var windowHeight = $(window).height();
   
-  function hitTestRectangle(r1, r2) {
-    // taken form tutorlal 
-    // https://github.com/kittykatattack/learningPixi#the-hittestrectangle-function
-
-  //Define the variables we'll need to calculate
-  var hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
-
-  //hit will determine whether there's a collision
-  hit = false;
-  var pos1 = r1.getGlobalPosition();
-  var pos2 = r2.getGlobalPosition();
-
-  //Find the center points of each sprite
-  r1.centerX = pos1.x + r1.width / 2;
-  r1.centerY = pos1.y + r1.height / 2;
-  r2.centerX = pos2.x + r2.width / 2;
-  r2.centerY = pos2.y + r2.height / 2;
-
-  //Find the half-widths and half-heights of each sprite
-  r1.halfWidth = r1.width / 2;
-  r1.halfHeight = r1.height / 2;
-  r2.halfWidth = r2.width / 2;
-  r2.halfHeight = r2.height / 2;
-
-  //Calculate the distance vector between the sprites
-  vx = r1.centerX - r2.centerX;
-  vy = r1.centerY - r2.centerY;
-
-  //Figure out the combined half-widths and half-heights
-  combinedHalfWidths = r1.halfWidth + r2.halfWidth;
-  combinedHalfHeights = r1.halfHeight + r2.halfHeight;
-
-  //Check for a collision on the x axis
-  if (Math.abs(vx) < combinedHalfWidths) {
-
-    //A collision might be occuring. Check for a collision on the y axis
-    if (Math.abs(vy) < combinedHalfHeights) {
-
-      //There's definitely a collision happening
-      hit = true;
-    } else {
-
-      //There's no collision on the y axis
-      hit = false;
-    }
-  } else {
-
-    //There's no collision on the x axis
-    hit = false;
-  }
-
-  //`hit` will be either `true` or `false`
-  return hit;
-};
-  
-  var distSqr = function(x1,y1,x2,y2) {
-    var x = x1-x2;
-    var y = y1-y2;
-    return  x*x + y*y;
-  };
-  
-  var vecLenSqr = function(vec) {
-    var x = vec[Object.getOwnPropertyNames(vec)[0]];
-    var y = vec[Object.getOwnPropertyNames(vec)[1]];
-    return x*x + y*y;
-  }
-  
-  var extend = function(parent, childConstructor) {
-    childConstructor.prototype = Object.create(parent.prototype);
-    childConstructor.prototype.constructor = childConstructor;
-    childConstructor.prototype.super = parent.prototype;
-    return childConstructor;
-  };
-  
-  var updateFunction = function(dt) {
-    this.children.forEach(function(child) {
-      if(child["update"]) {
-        child.update(dt);
-      }
-    })
-  };
-  
-  var GameObject = extend(PIXI.Container, function(parent) {
+  var GameObject = utils.extend(PIXI.Container, function(parent) {
     PIXI.Container.call(this);
   });
-  GameObject.prototype.update =  updateFunction;
+  GameObject.prototype.update =  utils.updateFunction;
   
-  var GameMain = extend(GameObject, function() {
+  var GameMain = utils.extend(GameObject, function() {
     GameObject.call(this);
   });
   GameMain.prototype.checkInvadersHit = function() {
@@ -112,7 +30,7 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
     this.checkInvadersHit();
   }
   
-  var Rect = extend(PIXI.Graphics, function(parent,x,y, width, height, color) {
+  var Rect = utils.extend(PIXI.Graphics, function(parent,x,y, width, height, color) {
     PIXI.Graphics.call(this);
     this.lineStyle(0)
         .beginFill(color)
@@ -122,9 +40,9 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
     this.position.x = x;
     this.position.y = y;
   });
-  Rect.prototype.update = updateFunction;
+  Rect.prototype.update = utils.updateFunction;
 
-  var Shoot = extend(Rect, function(parent) {
+  var Shoot = utils.extend(Rect, function(parent) {
     Rect.call(this, parent, 0, 0, 5, 10, 0x00FF00);
     this.velocity = {dx:0, dy:-4};
     this.renderable = false;
@@ -139,7 +57,7 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
   };
   
   
-  var Defender = extend(Rect, function(parent, x,y,width,heigth,color){
+  var Defender = utils.extend(Rect, function(parent, x,y,width,heigth,color){
     Rect.call(this, parent, x,y, width, heigth, color);
     this.shootPool = new GameObject(parent);
     parent.addChild(this.shootPool);
@@ -184,7 +102,7 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
     }, []);
   };
   
-  var Invaders = extend(GameObject, function(parent, x,y, w,h,numx, numy) {
+  var Invaders = utils.extend(GameObject, function(parent, x,y, w,h,numx, numy) {
     GameObject.call(this, parent); 
     this.velocity = {dx:2, dy:0};
     this.friction = {x:0.9, y:0};
@@ -225,7 +143,7 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
       .filter(function(shoot) {
                 // find shoots which hit the fleet
                 if(shoot.renderable) {
-                  return hitTestRectangle(shoot, this.invaders); 
+                  return utils.hitTestRectangle(shoot, this.invaders); 
                 } else {
                   return false;
                 }
@@ -234,7 +152,7 @@ requirejs(["jquery","PIXI"], function ($,PIXI) {
                 // find all invaders in fleet that are hit
                  this.invaders.children.forEach( function(invader) {
                    // GoOnHere invader is in wrong coord system
-                   var hit = invader.renderable && hitTestRectangle(shoot, invader); 
+                   var hit = invader.renderable && utils.hitTestRectangle(shoot, invader); 
                    if(hit) {
                      invader.renderable = false;
                      shoot.renderable = false;
