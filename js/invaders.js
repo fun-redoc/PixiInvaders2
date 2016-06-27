@@ -78,6 +78,12 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
         return;
       } 
       this.maybeShootCounter = Math.random()*randomRange;
+      // find invader who will shoot
+      var shooters = this.invaders.children.filter( function(invader) { return invader.renderable; });
+    
+      if(shooters.length === 0) return;
+    
+      var shooter = shooters[Math.round(Math.random()*shooters.length)];
       var freeShoot = this.shootPool.children.find( function(shoot) {
         return !shoot.renderable;  
       });
@@ -89,8 +95,9 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
       } else {
         //console.log("reusing free shoot");
       }
-      freeShoot.position.x = this.position.x + this.width/2;
-      freeShoot.position.y = this.position.y + this.height*0.1;
+      var shooterPosition = shooter.getGlobalPosition();
+      freeShoot.position.x = shooterPosition.x + shooter.width/2;
+      freeShoot.position.y = shooterPosition.y + shooter.height*0.1;
       freeShoot.renderable = true;
   };
   Invaders.prototype.getShoots = function() {
