@@ -46,6 +46,10 @@ define(["PIXI", "utils", "GameObject", "Rect", "Shoot"],
       return acc;
     }, []);
   };
+  // : (PIXI.Container -> ()) -> ()
+  Defender.prototype.checkHit = function(checkHitByShoot) {
+    checkHitByShoot(this);
+  };
   
   return Defender;
 });

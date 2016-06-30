@@ -17,6 +17,13 @@ requirejs(["jquery","PIXI",
     if(!this.invaders) return;
     this.invaders.checkHit(this.defender.getShoots.bind(this.defender));
   };
+  GameMain.prototype.checkDefenderHit = function() {
+    if(!this.defender) return;
+   this.defender.checkHit(this.invaders.checkIfHitObject.bind(this.invaders, function() {
+     console.log("hit me");
+     debugger;
+   }));
+  };
   GameMain.prototype.addInvaders = function(invaders) {
     this.invaders = invaders;
     this.addChild(invaders);
@@ -28,6 +35,9 @@ requirejs(["jquery","PIXI",
   GameMain.prototype.update = function(dt) {
     this.super.update.call(this,dt);
     this.checkInvadersHit();
+    if( this.checkDefenderHit()) {
+      console.log("TODO game over!");
+    }
   }
 
 var stage = new GameMain();

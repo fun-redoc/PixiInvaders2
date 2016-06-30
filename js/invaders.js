@@ -68,7 +68,7 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
                }.bind(this))
   }
   Invaders.prototype.maybeShoot = function() {
-    var randomRange =50;
+    var randomRange = 200;
       if(typeof this.maybeShootCounter == "undefined") {
         this.maybeShootCounter = Math.random()*randomRange;
         return;
@@ -83,7 +83,7 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
     
       if(shooters.length === 0) return;
     
-      var shooter = shooters[Math.round(Math.random()*shooters.length)];
+      var shooter = shooters[Math.floor(Math.random()*shooters.length)];
       var freeShoot = this.shootPool.children.find( function(shoot) {
         return !shoot.renderable;  
       });
@@ -108,6 +108,16 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
       } 
       return acc;
     }, []);
+  };
+  Invaders.prototype.checkIfHitObject = function(callbackWhenHit, objectToHit) {
+     this.getShoots().every( function(shoot) {
+       if(utils.hitTestRectangle(shoot, objectToHit)) {
+         callbackWhenHit(shoot, objectToHit);
+         return false;
+       } else {
+         return true;
+       }
+     });
   };
 
   return Invaders;
