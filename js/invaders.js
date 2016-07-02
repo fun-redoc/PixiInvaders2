@@ -109,7 +109,8 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
       return acc;
     }, []);
   };
-  Invaders.prototype.checkIfHitObject = function(callbackWhenHit, objectToHit) {
+  Invaders.prototype.checkIfHitObject = function(objectToHit, callbackWhenHit) {
+    if(!objectToHit) return;
      this.getShoots().every( function(shoot) {
        if(utils.hitTestRectangle(shoot, objectToHit)) {
          callbackWhenHit(shoot, objectToHit);
