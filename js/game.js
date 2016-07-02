@@ -10,6 +10,27 @@ requirejs(["jquery","PIXI",
   var windowWidth = $(window).width();
   var windowHeight = $(window).height();
   
+  var GameOver = utils.extend(GameObject, function() {
+    GameObject.call(this);
+    
+    var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
+    this.addChild(text);
+    this.startNewGame = false;
+    
+    var keyActions = {
+      //72: defender.moveLeft.bind(defender),
+    };  
+    document.onkeydown = function(event) {
+      this.startNewGame = true; 
+      event.preventDefault();
+    }.bind(this);
+  });
+  GameOver.prototype.update = function(dt) {
+    // no need to call super for standard behavoior since only static text chown
+    return this.startNewGame ? new GameMain() : this; // maybe regenerating old GameMain is more GC friendly
+  }
+  
+  
   var GameMain = utils.extend(GameObject, function() {
     GameObject.call(this);
     var invaders = new Invaders(this, 10, 10, 40, 20, 4,3);
@@ -22,6 +43,7 @@ requirejs(["jquery","PIXI",
 // 2. when invades hit defender game over
 // 4. when an invader hits defender game over 
 // 6. when last invader killed show Won
+// 7. under some circumstances the invader feed sails down without random movement, see update fn ov invaders
 
 // input
 //$(document).keydown(function(event){
@@ -55,10 +77,15 @@ requirejs(["jquery","PIXI",
   GameMain.prototype.update = function(dt) {
     this.super.update.call(this,dt);
     this.checkInvadersHit();
-     this.invaders.checkIfHitObject(this.defender, function() {
-      var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
-      this.addChild(text);
-   }.bind(this));
+    return this.invaders.checkIfHitObject(this.defender, 
+      function() { // when hit
+//        var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
+//        this.addChild(text);
+        return new GameOver(); // TODO here the Game Over Stage must be passed
+      }.bind(this),
+      function() { // when not hit
+        return this;
+      }.bind(this));
   };
 
 
@@ -71,21 +98,12 @@ window.onresize = resize;
 
 $("body").append(renderer.view);
 
-
-// test
-//defender.shoot();
-//defender.moveRight();
-var cout = 1;
-
 var stage = new GameMain();
 // game loop
-var animate = function() {
-  requestAnimationFrame(animate);
-  stage.update();
-  renderer.render(stage);
-  
-  //test
-      if(cout++ % 100 === 0) defender.shoot();
+var animate = function(currentStage) {
+  var newStage = currentStage.update();
+  renderer.render(currentStage);
+  requestAnimationFrame(animate.bind(null, newStage));
 };
-requestAnimationFrame(animate);
+requestAnimationFrame(animate.bind(null, stage));
 });

@@ -109,16 +109,22 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
       return acc;
     }, []);
   };
-  Invaders.prototype.checkIfHitObject = function(objectToHit, callbackWhenHit) {
-    if(!objectToHit) return;
-     this.getShoots().every( function(shoot) {
+  Invaders.prototype.checkIfHitObject = function(objectToHit, callbackWhenHit, callbackWhenNotHit) {
+    if(!objectToHit) return callbackWhenNotHit();
+    var shootThatHitObject = null;
+    this.getShoots().every( function(shoot) {
        if(utils.hitTestRectangle(shoot, objectToHit)) {
-         callbackWhenHit(shoot, objectToHit);
+         shootThatHitObject = shoot;
          return false;
        } else {
          return true;
        }
-     });
+    });
+    if(shootThatHitObject) {
+      return callbackWhenHit(shootThatHitObject, objectToHit);
+    } else {
+      return callbackWhenNotHit();
+    }
   };
 
   return Invaders;

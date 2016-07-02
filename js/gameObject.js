@@ -4,7 +4,7 @@ define(["PIXI", "utils"], function (PIXI, utils) {
   var GameObject = utils.extend(PIXI.Container, function(parent) {
     PIXI.Container.call(this);
   });
-  GameObject.prototype.update =  utils.updateFunction;
+  GameObject.prototype.update = utils.updateFunction;
   
   return GameObject;
 });

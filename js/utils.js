@@ -80,6 +80,7 @@ define({
         child.update(dt);
       }
     })
+    return this;
   }
   
 });
