@@ -1,9 +1,8 @@
 ## in Work
-- hit defender => game over
+- when an invader enters defenders area game lost
 
 ## ToDo
-- refactor, extract the shooting ability and the ability to be shot 
-- hit all invaders game won
+- under some circumstances the invader feed sails down without random movement, see update fn ov invaders
 - add sounds
 - add background music
 - count scores
@@ -16,3 +15,8 @@
 - make it two playser game over network
 
 ## Done
+- when last invader killed show Won
+- refactor, extract the shooting ability and the ability to be shot 
+- hit all invaders game won
+- invaders should be able to shoot
+- when invades hit defender game over
