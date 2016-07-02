@@ -39,9 +39,7 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
     }
     this.maybeShoot();
   };
-  Invaders.prototype.checkHit = function(fnGetShoots) {
-    if(!fnGetShoots) return;
-    var shoots = fnGetShoots();
+  Invaders.prototype.checkIfHitByDefendersShoots = function(shoots, callbackIfAllInvadersKilled, callbackIfSomeInvaderRemains) {
     var numLivingInvaders = this.invaders.children.length;
     // mark hit invaders
     shoots
@@ -65,8 +63,41 @@ define(["jquery", "PIXI", "utils", "GameObject", "Rect", "Shoot"],
                    // count survivig invadors
                    if(!invader.renderable) numLivingInvaders--;
                  })
-               }.bind(this))
+               }.bind(this));
+    if(numLivingInvaders > 0) {
+      return callbackIfSomeInvaderRemains();
+    } else {
+      return callbackIfAllInvadersKilled();
+    }
   }
+//  Invaders.prototype.checkHit = function(fnGetShoots) {
+//    if(!fnGetShoots) return;
+//    var shoots = fnGetShoots();
+//    var numLivingInvaders = this.invaders.children.length;
+//    // mark hit invaders
+//    shoots
+//      .filter(function(shoot) {
+//                // find shoots which hit the fleet
+//                if(shoot.renderable) {
+//                  return utils.hitTestRectangle(shoot, this.invaders);
+//                } else {
+//                  return false;
+//                }
+//              }.bind(this))
+//      .forEach(function(shoot) {
+//                // find all invaders in fleet that are hit
+//                 this.invaders.children.forEach( function(invader) {
+//                   // GoOnHere invader is in wrong coord system
+//                   var hit = invader.renderable && utils.hitTestRectangle(shoot, invader);
+//                   if(hit) {
+//                     invader.renderable = false;
+//                     shoot.renderable = false;
+//                   }
+//                   // count survivig invadors
+//                   if(!invader.renderable) numLivingInvaders--;
+//                 })
+//               }.bind(this))
+//  }
   Invaders.prototype.maybeShoot = function() {
     var randomRange = 200;
       if(typeof this.maybeShootCounter == "undefined") {

@@ -10,10 +10,10 @@ requirejs(["jquery","PIXI",
   var windowWidth = $(window).width();
   var windowHeight = $(window).height();
   
-  var GameOver = utils.extend(GameObject, function() {
+  var GameOver = utils.extend(GameObject, function(text) {
     GameObject.call(this);
     
-    var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
+    var text = new PIXI.Text(text,{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
     this.addChild(text);
     this.startNewGame = false;
     
@@ -62,10 +62,6 @@ requirejs(["jquery","PIXI",
       }
     };
   });
-  GameMain.prototype.checkInvadersHit = function() {
-    if(!this.invaders) return;
-    this.invaders.checkHit(this.defender.getShoots.bind(this.defender));
-  };
   GameMain.prototype.addInvaders = function(invaders) {
     this.invaders = invaders;
     this.addChild(invaders);
@@ -76,15 +72,22 @@ requirejs(["jquery","PIXI",
   };
   GameMain.prototype.update = function(dt) {
     this.super.update.call(this,dt);
-    this.checkInvadersHit();
     return this.invaders.checkIfHitObject(this.defender, 
       function() { // when hit
 //        var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
 //        this.addChild(text);
-        return new GameOver(); // TODO here the Game Over Stage must be passed
+        return new GameOver('Game Over,\n press any button to restart.');
       }.bind(this),
       function() { // when not hit
-        return this;
+//        if(!this.invaders) return this;
+//        this.invaders.checkHit(this.defender.getShoots.bind(this.defender));
+        return this.invaders.checkIfHitByDefendersShoots(this.defender.getShoots(),
+                                                         function() { // all invaders shot
+                                                          return new GameOver("You won this battle, \n press any key to restart");
+                                                         }.bind(this),
+                                                         function() { // some invaders remain
+                                                          return this;
+                                                         }.bind(this));
       }.bind(this));
   };
 
