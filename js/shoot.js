@@ -14,7 +14,8 @@ define(["PIXI", "utils", "Rect"], function(PIXI,utils,Rect) {
   });
   
   Shoot.prototype.update = function(dt) {
-      this.super.update.call(this,dt);
+      //this.super.update.call(this,dt);
+    Rect.prototype.update.call(this,dt);
       if(!this.renderable) return;
       this.position.y += this.velocity.dy;
       if(this.position.y + this.height < 0) {

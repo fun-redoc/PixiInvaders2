@@ -10,7 +10,8 @@ define(["PIXI", "utils", "GameObject", "Rect", "Shoot"],
     this.friction = {x:0.9, y:0};
   });
   Defender.prototype.update = function(dt) {
-        this.super.update.call(this,dt);
+        //this.super.update.call(this,dt);
+    Rect.prototype.update.call(this, dt);
       // when simulation scatters then use dt and verlet integration
         this.position.x +=  this.velocity.dx;
         this.position.y +=  this.velocity.dy;

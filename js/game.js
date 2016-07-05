@@ -27,7 +27,7 @@ requirejs(["jquery","PIXI",
   });
   GameOver.prototype.update = function(dt) {
     // no need to call super for standard behavoior since only static text chown
-    return this.startNewGame ? new GameMain() : this; // maybe regenerating old GameMain is more GC friendly
+    return this.startNewGame ? new GameLevel1() : this; // maybe regenerating old GameMain is more GC friendly
   }
   
   
@@ -38,15 +38,8 @@ requirejs(["jquery","PIXI",
     this.addDefender(defender);
     this.addInvaders(invaders);
 
-// TODO
-// 3. invaders should be able to shoot
-// 2. when invades hit defender game over
-// 4. when an invader hits defender game over 
-// 6. when last invader killed show Won
-// 7. under some circumstances the invader feed sails down without random movement, see update fn ov invaders
 
 // input
-//$(document).keydown(function(event){
 // vim like left=h right=l, space to shoot
     var keyActions = {
       72: defender.moveLeft.bind(defender),
@@ -71,16 +64,13 @@ requirejs(["jquery","PIXI",
     this.addChild(defender);
   };
   GameMain.prototype.update = function(dt) {
-    this.super.update.call(this,dt);
+    // results in an endless loop this.super.update.call(this,dt);
+    GameObject.prototype.update.call(this,dt);
     return this.invaders.checkIfHitObject(this.defender, 
       function() { // when hit
-//        var text = new PIXI.Text('Game Over,\n press any button to restart.',{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
-//        this.addChild(text);
         return new GameOver('Game Over,\n press any button to restart.');
       }.bind(this),
       function() { // when not hit
-//        if(!this.invaders) return this;
-//        this.invaders.checkHit(this.defender.getShoots.bind(this.defender));
         return this.invaders.checkIfHitByDefendersShoots(this.defender.getShoots(),
                                                          function() { // all invaders shot
                                                           return new GameOver("You won this battle, \n press any key to restart");
@@ -91,22 +81,32 @@ requirejs(["jquery","PIXI",
       }.bind(this));
   };
 
+  var GameLevel1 = utils.extend(GameMain, function() {
+    GameMain.call(this);
+    var text = new PIXI.Text("Level1",{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
+    this.addChild(text);
+  });
+  var GameLevel2 = utils.extend(GameMain, function() {
+    GameMain.call(this);
+    var text = new PIXI.Text("Level2",{font : '32px Arial', fill : 0xcc10dd, align : 'center'});
+    this.addChild(text);
+  });
 
-// initialize renderer
-var renderer = new PIXI.autoDetectRenderer(windowWidth,windowHeight,{transparent:true, antialias: true });
-var resize = function() {
-  renderer.resize($(window).width(), $(window).height()); 
-}
-window.onresize = resize;
+  // initialize renderer
+  var renderer = new PIXI.autoDetectRenderer(windowWidth,windowHeight,{transparent:true, antialias: true });
+  var resize = function() {
+    renderer.resize($(window).width(), $(window).height());
+  }
+  window.onresize = resize;
 
-$("body").append(renderer.view);
+  $("body").append(renderer.view);
 
-var stage = new GameMain();
-// game loop
-var animate = function(currentStage) {
-  var newStage = currentStage.update();
-  renderer.render(currentStage);
-  requestAnimationFrame(animate.bind(null, newStage));
-};
-requestAnimationFrame(animate.bind(null, stage));
+  var stage = new GameLevel1();
+  // game loop
+  var animate = function(currentStage) {
+    var newStage = currentStage.update();
+    renderer.render(currentStage);
+    requestAnimationFrame(animate.bind(null, newStage));
+  };
+  requestAnimationFrame(animate.bind(null, stage));
 });

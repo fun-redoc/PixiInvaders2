@@ -70,7 +70,7 @@ define({
   extend : function(parent, childConstructor) {
     childConstructor.prototype = Object.create(parent.prototype);
     childConstructor.prototype.constructor = childConstructor;
-    childConstructor.prototype.super = parent.prototype;
+// this seems not to work correctly    childConstructor.prototype.super = parent.prototype;
     return childConstructor;
   },
   
